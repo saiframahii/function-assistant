@@ -90,8 +90,8 @@ class AssistantManager:
 
 
 def main():
-    api_key = "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"
-    assistant_id = "asst_Y2RNxPUzSI7thEwCOH4kOVAL"
+    api_key = st.secrets["OPENAI_API_KEY"]
+    assistant_id = st.secrets["OPENAI_ASSISTANT_ID"]
     manager = AssistantManager(api_key)
 
     # step 1: retrieve assistant
