@@ -3,10 +3,7 @@ import time
 import yfinance as yf
 import json
 import streamlit as st
-# from dotenv import load_dotenv
-# import os
 
-# load_dotenv()
 
 
 def get_stock_price(symbol: str) -> float:
