@@ -3,6 +3,10 @@ import time
 import yfinance as yf
 import json
 import streamlit as st
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 
 def get_stock_price(symbol: str) -> float:
@@ -90,7 +94,7 @@ class AssistantManager:
 
 
 def main():
-    api_key = st.secrets["OPENAI_API_KEY "]
+    api_key = st.secrets["OPENAI_API_KEY"]
     assistant_id = st.secrets["OPENAI_ASSISTANT_ID"]
     manager = AssistantManager(api_key)
 
