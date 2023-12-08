@@ -18,14 +18,6 @@ class AssistantManager:
         self.thread = None
         self.run = None
 
-    # def create_assistant(self, name, instructions, tools):
-    #     self.assistant = self.client.beta.assistants.create(
-    #         name=name,
-    #         instructions=instructions,
-    #         tools=tools,
-    #         model=self.model
-    #     )
-    
     def retrieve_assistant(self, assistant_id):
         self.assistant = self.client.beta.assistants.retrieve(assistant_id)
 
@@ -98,7 +90,7 @@ class AssistantManager:
 
 
 def main():
-    api_key = "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"
+    api_key = "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"
     assistant_id = "asst_Y2RNxPUzSI7thEwCOH4kOVAL"
     manager = AssistantManager(api_key)
 
