@@ -1,6 +1,6 @@
 [theme]
 base="dark"
-primaryColor="#ff5964"  # Crimson Red
-backgroundColor="#262626"  # Very Dark Gray
-secondaryBackgroundColor="#ff5964"  # Dark Gray
+primaryColor="#ff61a6"  # Neon Pink
+backgroundColor="#1e1e2e"  # Dark Blue-Gray
+secondaryBackgroundColor="#272738"  # Slightly Lighter Blue-Gray
 font="monospace"
