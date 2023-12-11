@@ -3,13 +3,92 @@ import time
 import yfinance as yf
 import json
 import streamlit as st
+import requests
 
 
 
-def get_stock_price(symbol: str) -> float:
-    stock = yf.Ticker(symbol)
-    price = stock.history(period="1d")['Close'].iloc[-1]
-    return price
+# def get_stock_price(symbol: str) -> float:
+#     stock = yf.Ticker(symbol)
+#     price = stock.history(period="1d")['Close'].iloc[-1]
+#     return price
+
+
+def general_company_research(company_url, relevance_api_key):
+    """
+    Do general research on a company based on its website URL.
+
+    Parameters:
+    company_url (str): The URL of the company's website.
+    api_key (str): API key for authentication.
+
+    Returns:
+    dict: The response data from the server.
+    """
+    # API endpoint URL
+    api_url = "https://api-d7b62b.stack.tryrelevance.com/latest/studios/86c5000b-cac3-4f83-af04-fcb2eb1c6dd7/trigger_llm_friendly"
+
+    # Headers for authentication
+    headers = {
+        "Authorization": relevance_api_key
+    }
+
+    # Request body
+    body = {
+        "company_url": company_url
+    }
+
+    # Make the POST request with headers and JSON body
+    response = requests.post(api_url, json=body, headers=headers)
+
+    # Check if the request was successful
+    if response.status_code == 200:
+        response = response.json()
+        response = response['output']['company_research_summary']
+        return response
+    else:
+        return {"error": "Request failed", "status_code": response.status_code}
+
+def find_person_in_company_by_role(company_name, role, relevance_api_key):
+    """
+    Find the name and LinkedIn profile of a person within a company by role.
+
+    Parameters:
+    company_name (str): The name of the company.
+    role (str): The specific role to find in the company.
+    relevance_api_key (str): API key for authentication.
+
+    Returns:
+    dict: The response data from the server.
+    """
+    # API endpoint URL
+    api_url = "https://api-d7b62b.stack.tryrelevance.com/latest/studios/0af04d63-9df8-41c8-ad28-3e7091cf7af7/trigger_llm_friendly"
+
+    # Headers for authentication
+    headers = {
+        "Authorization": relevance_api_key
+    }
+
+    # Request body
+    body = {
+        "company_name": company_name,
+        "role": role
+    }
+
+    # Make the POST request with headers and JSON body
+    response = requests.post(api_url, json=body, headers=headers)
+
+    # Check if the request was successful
+    if response.status_code == 200:
+        response_data = response.json()
+        output = response_data.get('output', {})
+
+        # Extract name and LinkedIn URL and format them into a string
+        name = output.get('name', 'Name not found')
+        linkedin_url = output.get('linkedin', 'LinkedIn profile not found')
+
+        return f"Name: {name}, LinkedIn Profile: {linkedin_url}"
+    else:
+        return {"error": "Request failed", "status_code": response.status_code}
 
 
 class AssistantManager:
@@ -49,7 +128,7 @@ class AssistantManager:
 
             if run_status.status == 'completed':
                 return self.process_messages()
-                break
+                # break
             elif run_status.status == 'requires_action':
                 print("Function Calling ...")
                 self.call_required_functions(run_status.required_action.submit_tool_outputs.model_dump())
@@ -69,12 +148,22 @@ class AssistantManager:
     def call_required_functions(self, required_actions):
         tool_outputs = []
 
+        print(required_actions)
+
         for action in required_actions["tool_calls"]:
             func_name = action['function']['name']
             arguments = json.loads(action['function']['arguments'])
 
-            if func_name == "get_stock_price":
-                output = get_stock_price(symbol=arguments['symbol'])
+            if func_name == "general_company_research":
+                output = general_company_research(company_url=arguments['company_url'], relevance_api_key="c716cd9c875d-4599-82d1-cf9e8f9fa22c:sk-NTY4ODVlOWUtNTRmMC00ZTk1LWI4YTgtYmU0ZjRhYjFjODdl")
+                # print(output)
+                tool_outputs.append({
+                    "tool_call_id": action['id'],
+                    "output": output
+                })
+            elif func_name == "find_person_in_company_by_role":
+                output = find_person_in_company_by_role(company_name=arguments['company_name'], role=arguments['role'], relevance_api_key="c716cd9c875d-4599-82d1-cf9e8f9fa22c:sk-MmYyMzkyZDQtYmM3Yy00NDY1LTk4OTctYzhjYmI2MDM1OTI4")
+                # print(output)
                 tool_outputs.append({
                     "tool_call_id": action['id'],
                     "output": output
@@ -103,24 +192,13 @@ def main():
 
     # Streamlit UI
     st.set_page_config(
-    page_title="Stock GPT",
-    page_icon="📈",
+    page_title="Outbound Co-Pilot",
+    page_icon="🚀",
     layout="wide",
     initial_sidebar_state="collapsed",
     )
 
-    st.markdown("<h1 style='text-align: center;'>Stock GPT 📈</h1>", unsafe_allow_html=True)
-    # st.title("Stock GPT 📈")
-
-    # Sidebar for additional controls or information
-    with st.sidebar:
-        st.info("Get real-time stock prices.")
-        st.markdown("""
-            ### Instructions
-            - Enter the name or ticker symbol of a stock.
-            - The assistant will provide the latest stock price.
-            - View the conversation in the chat window.
-        """)
+    st.markdown("<h1 style='text-align: center;'>Outbound Co-Pilot 🚀</h1>", unsafe_allow_html=True)
 
     # Initialize chat history
     if "messages" not in st.session_state:
@@ -132,23 +210,38 @@ def main():
             st.markdown(message["content"])
 
     # React to user input
-    if prompt := st.chat_input("Enter stock name ..."):
+    if prompt := st.chat_input("Message Outbound Co-Pilot 💬"):
+
         # Display user message in chat message container
         st.chat_message("user").markdown(prompt)
         # Add user message to chat history
         st.session_state.messages.append({"role": "user", "content": prompt})
 
-        manager.add_message_to_thread(role="user", content=prompt)
-        manager.run_assistant()
-        response = manager.wait_for_completion()
+        # Create a combined prompt from chat history
+        combined_prompt = str([{"role": m["role"], "content": m["content"]} for m in st.session_state.messages[-20:]])
+        print(combined_prompt)
+
+        manager.add_message_to_thread(role="user", content=combined_prompt)
+
+         
+        # Show spinner while processing the response
+        with st.spinner("Generating response..."):
+            manager.run_assistant()
+            response = manager.wait_for_completion()
 
         # Display assistant response in chat message container
         with st.chat_message("assistant"):
-            st.markdown(response)
+            message_placeholder = st.empty()
+            full_response = ""
+            for chunk in response.split():
+                full_response += chunk + " "
+                time.sleep(0.05)
+                # Add a blinking cursor to simulate typing
+                message_placeholder.markdown(full_response + "▌")
+            message_placeholder.markdown(full_response)
+                    # st.markdown(response)
         # Add assistant response to chat history
         st.session_state.messages.append({"role": "assistant", "content": response})
-
-
 
 
 if __name__ == '__main__':
