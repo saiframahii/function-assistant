@@ -192,13 +192,13 @@ def main():
 
     # Streamlit UI
     st.set_page_config(
-    page_title="Outbound Co-Pilot",
+    page_title="Outbound Sales Co-Pilot",
     page_icon="🚀",
     layout="wide",
     initial_sidebar_state="collapsed",
     )
 
-    st.markdown("<h1 style='text-align: center;'>Outbound Co-Pilot 🚀</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center;'>Outbound Sales Co-Pilot 🚀</h1>", unsafe_allow_html=True)
 
     # Initialize chat history
     if "messages" not in st.session_state:
@@ -210,7 +210,7 @@ def main():
             st.markdown(message["content"])
 
     # React to user input
-    if prompt := st.chat_input("Message Outbound Co-Pilot 💬"):
+    if prompt := st.chat_input("Message Outbound Sales Co-Pilot 💬"):
 
         # Display user message in chat message container
         st.chat_message("user").markdown(prompt)
