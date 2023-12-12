@@ -6,13 +6,6 @@ import streamlit as st
 import requests
 
 
-
-# def get_stock_price(symbol: str) -> float:
-#     stock = yf.Ticker(symbol)
-#     price = stock.history(period="1d")['Close'].iloc[-1]
-#     return price
-
-
 def general_company_research(company_url, relevance_api_key):
     """
     Do general research on a company based on its website URL.
@@ -90,6 +83,49 @@ def find_person_in_company_by_role(company_name, role, relevance_api_key):
     else:
         return {"error": "Request failed", "status_code": response.status_code}
 
+def personalise_linkedin_connection_request(first_name, linkedin_url, product_context, my_company, relevance_api_key):
+    """
+    Personalize LinkedIn Connection Request based on user posts.
+
+    Parameters:
+    first_name (str): The first name of your prospect.
+    linkedin_url (str): LinkedIn URL of your prospect.
+    product_context (str): More context equals better tailored connection requests.
+    my_company (str): The name of your company, whose products and services you're looking to sell.
+    relevance_api_key (str): API key for authentication.
+
+    Returns:
+    dict: The response data from the server.
+    """
+    # API endpoint URL
+    api_url = "https://api-d7b62b.stack.tryrelevance.com/latest/studios/26787101-7a5a-4fcf-becf-656217ee0471/trigger_llm_friendly"
+
+    # Headers for authentication
+    headers = {
+        "Authorization": relevance_api_key
+    }
+
+    # Request body
+    body = {
+        "first_name": first_name,
+        "linkedin_url": linkedin_url,
+        "product_context": product_context,
+        "my_company": my_company
+    }
+
+    # Make the POST request with headers and JSON body
+    response = requests.post(api_url, json=body, headers=headers)
+
+    # Check if the request was successful
+    if response.status_code == 200:
+        response = response.json()
+        output = response.get('output', {})
+
+        message = output.get('personalised_opening_line')
+        return f"Personalised Message: {message}"
+    else:
+        return {"error": "Request failed", "status_code": response.status_code}
+
 
 class AssistantManager:
     def __init__(self, api_key):
@@ -148,22 +184,35 @@ class AssistantManager:
     def call_required_functions(self, required_actions):
         tool_outputs = []
 
-        print(required_actions)
+        # print(required_actions)
 
         for action in required_actions["tool_calls"]:
             func_name = action['function']['name']
             arguments = json.loads(action['function']['arguments'])
+            print(arguments)
 
             if func_name == "general_company_research":
-                output = general_company_research(company_url=arguments['company_url'], relevance_api_key="c716cd9c875d-4599-82d1-cf9e8f9fa22c:sk-NTY4ODVlOWUtNTRmMC00ZTk1LWI4YTgtYmU0ZjRhYjFjODdl")
-                # print(output)
+                output = general_company_research(company_url=arguments['company_url'], 
+                                                  relevance_api_key="c716cd9c875d-4599-82d1-cf9e8f9fa22c:sk-NTY4ODVlOWUtNTRmMC00ZTk1LWI4YTgtYmU0ZjRhYjFjODdl")
                 tool_outputs.append({
                     "tool_call_id": action['id'],
                     "output": output
                 })
             elif func_name == "find_person_in_company_by_role":
-                output = find_person_in_company_by_role(company_name=arguments['company_name'], role=arguments['role'], relevance_api_key="c716cd9c875d-4599-82d1-cf9e8f9fa22c:sk-MmYyMzkyZDQtYmM3Yy00NDY1LTk4OTctYzhjYmI2MDM1OTI4")
-                # print(output)
+                output = find_person_in_company_by_role(company_name=arguments['company_name'], 
+                                                        role=arguments['role'], 
+                                                        relevance_api_key="c716cd9c875d-4599-82d1-cf9e8f9fa22c:sk-MmYyMzkyZDQtYmM3Yy00NDY1LTk4OTctYzhjYmI2MDM1OTI4")
+                tool_outputs.append({
+                    "tool_call_id": action['id'],
+                    "output": output
+                })
+            elif func_name == "personalise_linkedin_connection_request":
+                output = personalise_linkedin_connection_request(first_name=arguments['first_name'], 
+                                                                 linkedin_url=arguments['linkedin_url'],
+                                                                 product_context=arguments['product_context'],
+                                                                 my_company=arguments['my_company'],
+                                                                 relevance_api_key="c716cd9c875d-4599-82d1-cf9e8f9fa22c:sk-OTMxNTY4YzktMzQwNi00MmE0LTljYzEtYTBkYTYyNGM1YmJm")
+                print(output)
                 tool_outputs.append({
                     "tool_call_id": action['id'],
                     "output": output
@@ -219,7 +268,7 @@ def main():
 
         # Create a combined prompt from chat history
         combined_prompt = str([{"role": m["role"], "content": m["content"]} for m in st.session_state.messages[-20:]])
-        print(combined_prompt)
+        # print(combined_prompt)
 
         manager.add_message_to_thread(role="user", content=combined_prompt)
 
