@@ -209,8 +209,8 @@ class AssistantManager:
             elif func_name == "personalise_linkedin_connection_request":
                 output = personalise_linkedin_connection_request(first_name=arguments['first_name'], 
                                                                  linkedin_url=arguments['linkedin_url'],
-                                                                 product_context=arguments['product_context'],
-                                                                 my_company=arguments['my_company'],
+                                                                 product_context="AI SalesMate, an innovative outbound sales copilot designed to enhance customer engagement and streamline sales processes.",
+                                                                 my_company="NovaTech Solutions",
                                                                  relevance_api_key="c716cd9c875d-4599-82d1-cf9e8f9fa22c:sk-OTMxNTY4YzktMzQwNi00MmE0LTljYzEtYTBkYTYyNGM1YmJm")
                 print(output)
                 tool_outputs.append({
