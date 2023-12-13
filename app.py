@@ -211,7 +211,7 @@ class AssistantManager:
                                                                  linkedin_url=arguments['linkedin_url'],
                                                                  product_context=arguments['product_context'],
                                                                  my_company=arguments['my_company'],
-                                                                 relevance_api_key="c716cd9c875d-4599-82d1-cf9e8f9fa22c:sk-MDMyYWU1OGMtZGQ1NC00OWY2LTlmYjMtNDI2YTAzZTU3Y2Ni")
+                                                                 relevance_api_key="c716cd9c875d-4599-82d1-cf9e8f9fa22c:sk-OTMxNTY4YzktMzQwNi00MmE0LTljYzEtYTBkYTYyNGM1YmJm")
                 print(output)
                 tool_outputs.append({
                     "tool_call_id": action['id'],
