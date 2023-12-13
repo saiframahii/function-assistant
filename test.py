@@ -36,15 +36,15 @@ def personalise_linkedin_connection_request(first_name, linkedin_url, product_co
     # Check if the request was successful
     if response.status_code == 200:
         response = response.json()
-        output = response.get('output', {})
-
-        message = output.get('personalised_opening_line')
-        return f"Personalised Message: {message}"
+        output = response['output']['personalised_opening_line']
+        return f"Personalised Message: {output}"
     else:
         return {"error": "Request failed", "status_code": response.status_code}
     
 
-personalise_linkedin_connection_request(first_name="Sulieman", 
+print(personalise_linkedin_connection_request(first_name="Sulieman", 
                                         linkedin_url="https://www.linkedin.com/in/sulalramahi/", 
                                         product_context= "AI SalesMate, an innovative outbound sales copilot designed to enhance customer engagement and streamline sales processes.",
-                                        )
+                                        my_company = "NovaTech Solutions",
+                                        relevance_api_key= "c716cd9c875d-4599-82d1-cf9e8f9fa22c:sk-MDMyYWU1OGMtZGQ1NC00OWY2LTlmYjMtNDI2YTAzZTU3Y2Ni"
+                                        ))

@@ -113,16 +113,15 @@ def personalise_linkedin_connection_request(first_name, linkedin_url, product_co
         "my_company": my_company
     }
 
+    print(f"this is the passed body: {body}")
     # Make the POST request with headers and JSON body
     response = requests.post(api_url, json=body, headers=headers)
 
     # Check if the request was successful
     if response.status_code == 200:
         response = response.json()
-        output = response.get('output', {})
-
-        message = output.get('personalised_opening_line')
-        return f"Personalised Message: {message}"
+        output = response['output']['personalised_opening_line']
+        return f"Personalised Message: {output}"
     else:
         return {"error": "Request failed", "status_code": response.status_code}
 
@@ -167,6 +166,7 @@ class AssistantManager:
                 # break
             elif run_status.status == 'requires_action':
                 print("Function Calling ...")
+                print(run_status)
                 self.call_required_functions(run_status.required_action.submit_tool_outputs.model_dump())
             else:
                 print("Waiting for the Assistant to process...")
@@ -184,7 +184,7 @@ class AssistantManager:
     def call_required_functions(self, required_actions):
         tool_outputs = []
 
-        # print(required_actions)
+        print(required_actions)
 
         for action in required_actions["tool_calls"]:
             func_name = action['function']['name']
@@ -211,7 +211,7 @@ class AssistantManager:
                                                                  linkedin_url=arguments['linkedin_url'],
                                                                  product_context=arguments['product_context'],
                                                                  my_company=arguments['my_company'],
-                                                                 relevance_api_key="c716cd9c875d-4599-82d1-cf9e8f9fa22c:sk-OTMxNTY4YzktMzQwNi00MmE0LTljYzEtYTBkYTYyNGM1YmJm")
+                                                                 relevance_api_key="c716cd9c875d-4599-82d1-cf9e8f9fa22c:sk-MDMyYWU1OGMtZGQ1NC00OWY2LTlmYjMtNDI2YTAzZTU3Y2Ni")
                 print(output)
                 tool_outputs.append({
                     "tool_call_id": action['id'],
